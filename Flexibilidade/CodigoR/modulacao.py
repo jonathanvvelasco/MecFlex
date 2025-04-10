@@ -4,12 +4,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 ### Lê o arquivo CSV e faz tratamento de dados
-pasta = r"c:/Users/jonathan.costa/OneDrive - epe.gov.br/Documentos/GitHub/MecFlex/Flexibilidade"    # Substitua 'caminho_para_o_arquivo.csv' pelo caminho do seu arquivo CSV
-dados = pd.read_csv(pasta + "/Dados Consolidados.csv")
+pasta = r"c:/Users/Silvia/OneDrive/Documentos/GitHub/MecFlex/Flexibilidade"    # Substitua 'caminho_para_o_arquivo.csv' pelo caminho do seu arquivo CSV
+dados = pd.read_csv(pasta + "/Dados Consolidados.csv", low_memory=False)
 dados['Valor'] = dados['Valor'].str.replace(",", "", regex=False)           # Substitui as vírgulas por strings vazias na coluna 'Valor'
 
 dados['Data'] = pd.to_datetime(dados['Data'])                               # Converte a coluna 'Data' para o formato datetime
-dados['Valor'] = pd.to_numeric(dados['Valor'], errors='coerce')             # Converte a coluna 'Valor' para numérico
+dados['Valor'] = pd.to_numeric(dados['Valor'])             # Converte a coluna 'Valor' para numérico
+
+# Filtra os dados por data de início e data de fim
+data_inicio = '2022-05-01'  # Substitua pela data de início desejada
+data_fim = '2022-05-31'     # Substitua pela data de fim desejada
+dados = dados[(dados['Data'] >= data_inicio) & (dados['Data'] <= data_fim)]
 
 
 ### Separa séries temporais
@@ -22,27 +27,72 @@ dados_ear = dados[dados['Variavel'] == 'EAR']                   # Filtra onde a 
 dados_ena = dados[dados['Variavel'] == 'ENA']                   # Filtra onde a coluna 'Variavel' é igual a 'ENA'
 dados_evt = dados[dados['Variavel'] == 'EVT']                   # Filtra onde a coluna 'Variavel' é igual a 'EVT'
 
+### Nivela unidades
+dados_geracao_eol['Valor'] = dados_geracao_eol['Valor'].astype(float) * 1000  # Converte a coluna 'Valor' de GWh para MWm (em valor horário)
 
+
+### ========== Modulação da Geração Eólica no Nordeste ==========
+## Dados
 carga_NE     = dados_carga[dados_carga['Subsistema'] == 'NE']
 eol_NE       = dados_geracao_eol[dados_geracao_eol['Subsistema'] == 'NE']
+cmo_NE       = dados_cmo[dados_cmo['Subsistema'] == 'NE']
+## Carga modulada pela geração eólica
 carga_NE_med = dados_carga['Valor'].mean()
-eol_NE_med   = eol_NE['Valor'].mean()*1000
+eol_NE_med   = eol_NE['Valor'].mean()
 part_eol_NE  = eol_NE_med / carga_NE_med
 eol_NE_mod   = carga_NE.copy()
 eol_NE_mod['Valor'] = eol_NE_mod['Valor'] * part_eol_NE
+## Calcula diferenças
+eol_NE_mod   = eol_NE_mod.set_index('Data').reindex(eol_NE.set_index('Data').index).reset_index()
+dif_mod      = eol_NE.copy()
+diferencas   = eol_NE['Valor'].values - eol_NE_mod['Valor'].values
+dif_mod['Valor'] = diferencas
+## Valora modulação
+cmo_NE       = cmo_NE.set_index('Data').reindex(eol_NE.set_index('Data').index).reset_index()
+val_mod      = cmo_NE.copy()
+valora_mod   = cmo_NE['Valor'].values * dif_mod['Valor'].values
+val_mod['Valor'] = valora_mod
+## Soma valores de valoração da modulação
+soma_val_mod = val_mod['Valor'].sum()
+soma_dif_mod = dif_mod['Valor'].sum()
+print(f'Valor total da modulação: {soma_val_mod} R$')
+print(f'Valor médio da modulação: {soma_val_mod / soma_dif_mod} R$/MWh')
 
-### Apenas um teste para visualizar a Curva de Carga
-teste_N = eol_NE_mod
-teste = teste_N.head(50)
-
-print(teste)
-
-# Plota os dados
-plt.figure(figsize=(10, 6))
-plt.plot(teste['Data'], teste['Valor'], label='Carga', color='blue')
+# ==================== Subplot da Modulação ====================
+plt.figure(figsize=(8, 8))
+# Subplot para a Geração Eólica e Carga Modulada
+plt.subplot(2, 1, 1)
+plt.plot(eol_NE['Data'], eol_NE['Valor'], label='Geração Eólica NE', color='blue')
+plt.plot(eol_NE_mod['Data'], eol_NE_mod['Valor'], label='Carga Modulada Eólica NE', color='orange')
 plt.xlabel('Data')
-plt.ylabel('Valor')
-plt.title('Gráfico de Carga ao longo do tempo')
+plt.ylabel('Valor (MWh)')
+plt.title('Geração Eólica e Carga Modulada no Nordeste')
+plt.legend()
+plt.grid()
+# Subplot para o CMO
+plt.subplot(2, 1, 2)
+plt.plot(cmo_NE['Data'], cmo_NE['Valor'], label='CMO NE', color='green')
+plt.xlabel('Data')
+plt.ylabel('CMO (R$/MWh)')
+plt.title('CMO no Nordeste')
+plt.legend()
+plt.grid()
+# Diferenças
+plt.figure(figsize=(8, 6))
+plt.plot(dif_mod['Data'], dif_mod['Valor'], label='Diferença Modulada', color='red')
+plt.xlabel('Data')
+plt.ylabel('Diferença (MWh)')
+plt.title('Diferença entre Geração Eólica e Carga Modulada no Nordeste')
+plt.legend()
+plt.grid()
+# Valoração
+plt.figure(figsize=(8, 6))
+plt.plot(val_mod['Data'], val_mod['Valor'], label='Valoração da Modulação', color='purple')
+plt.xlabel('Data')
+plt.ylabel('Valoração (R$)')
+plt.title('Valoração da Modulação no Nordeste')
 plt.legend()
 plt.grid()
 plt.show()
+
+print()
