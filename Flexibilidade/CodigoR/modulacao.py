@@ -1,10 +1,13 @@
 # Exemplo Modulacao
 
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
 ### Dados de entrada
-pasta       = r"C:\Users\jonathan.costa\OneDrive - epe.gov.br\Documentos\GitHub\MecFlex\Flexibilidade"    # Pasta com dados CSV
+
+fonte_codigo = os.path.dirname(os.path.abspath(__file__))   # Pasta com código
+pasta = os.path.dirname(fonte_codigo)    # Pasta com dados CSV
 data_inicio = '2022-05-01'      # Data de início da análise
 data_fim    = '2022-05-31'      # Data de fim da análise
 
