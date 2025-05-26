@@ -34,11 +34,13 @@ def ler_csvs_input():
 dados = ler_csvs_input()
 dados['din_instante']   = pd.to_datetime(dados['din_instante'])
 
+dados_24 = dados[dados['din_instante'].dt.year == 2024]     # Filtra os dados para o ano de 2024
+
 # Gráfico de Geração Limitada para n pontos
-n=200000
+n = 10000000
 plt.figure(figsize=(10, 6))
 plt.plot(dados['din_instante'].head(n),dados['val_geracaolimitada'].head(n))
-plt.title('Geração Limitada (MW)')
+plt.title('Geração Limitada em cada gerador(MW/30min)')
 plt.xlabel('Data')
 plt.ylabel('Geração Limitada')
 
@@ -49,5 +51,16 @@ plt.figure(figsize=(10, 6))
 plt.boxplot(curtailment_sin, vert=True, patch_artist=True)
 plt.title('Box Plot - Geração Limitada')
 plt.xlabel('Valores')
+
+# Avaliação por subsistema
+dados_somados = dados.groupby(['din_instante', 'id_subsistema'], as_index=False)['val_geracaolimitada'].sum()
+plt.figure(figsize=(10, 6))
+dados_n = dados_somados['id_subsistema'] == "NE"
+plt.plot(dados_somados[dados_n]['din_instante'],dados_somados[dados_n]['val_geracaolimitada']/1e3)
+plt.title('Geração Limitada no Nordeste (GW/30min)')
+plt.xlabel('Data')
+plt.ylabel('Geração Limitada')
+
+plt.show()
 
 a=1
