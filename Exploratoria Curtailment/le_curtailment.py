@@ -183,11 +183,40 @@ def razao_corte(dados):
     plt.ylabel('Geração Limitada (GWh)')
     plt.legend()
 
-# Lê os dados dos arquivos CSV
-dados = ler_csvs_input()
-dados['din_instante']   = pd.to_datetime(dados['din_instante'])
+# soma corte por subsistema e razão de corte
+def soma_corte_por_subsistema_e_razao(dados):
+    "Plota a soma do corte de geração por subsistema e razão de corte."
+    dados_somados = dados.groupby(['id_subsistema', 'cod_razaorestricao'], as_index=False)['val_geracaolimitada'].sum()
 
-dados_24 = dados[dados['din_instante'].dt.year == 2024]     # Filtra os dados para o ano de 2024
+    subsistemas = dados_somados['id_subsistema'].unique()
+    plt.figure(figsize=(10, 6))
+    bottom = np.zeros(len(subsistemas))
+    restricoes = ['REL', 'ENE', 'CNF']
+    # for rest in df_sub['cod_razaorestricao'].unique():
+    for rest in restricoes:
+        subset = dados_somados[dados_somados['cod_razaorestricao'] == rest]
+        # Alinha os valores por semana
+        valores = [subset[subset['id_subsistema'] == s]['val_geracaolimitada'].sum()/2e6 for s in subsistemas]
+        plt.bar(subsistemas, valores, bottom=bottom, label=rest)
+        bottom += valores
+
+    plt.title("Constrained-off no SIN de 2022 a 2023")
+    plt.ylabel('Corte de Geração (TWh)')
+    plt.ylim([0, 50])
+    plt.legend()
+
+
+
+
+# Lê o DataFrame 'dados' do arquivo Parquet, se existir
+if os.path.exists("dados.parquet"):
+    dados = pd.read_parquet("dados.parquet")
+else:
+    dados = ler_csvs_input()
+    dados['din_instante'] = pd.to_datetime(dados['din_instante'])
+    dados.to_parquet("dados.parquet", index=False)
+dados_22e23 = dados[dados['din_instante'].dt.year < 2024]
+dados_24e25 = dados[dados['din_instante'].dt.year >= 2024]     # Filtra os dados para o ano de 2024
 
 n = 10000000    # Número de pontos a serem plotados
 # plotar_geracao_limitada(dados, n)
@@ -196,9 +225,11 @@ n = 10000000    # Número de pontos a serem plotados
 
 # plotar_geracao_limitada_por_subsistema(dados)
 
-# razao_corte_por_subsistema(dados)
+razao_corte_por_subsistema(dados)
 
-razao_corte(dados)
+# razao_corte(dados)
+
+# soma_corte_por_subsistema_e_razao(dados)
 
 plt.show()
 
