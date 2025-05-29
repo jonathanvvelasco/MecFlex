@@ -8,8 +8,8 @@ else:
     dados = ler_csvs_input()
     dados['din_instante'] = pd.to_datetime(dados['din_instante'])
     dados.to_parquet("dados.parquet", index=False)
-dados_22e23 = dados[dados['din_instante'].dt.year < 2024]
-dados_24e25 = dados[dados['din_instante'].dt.year >= 2024]     # Filtra os dados para o ano de 2024
+# dados_22e23 = dados[dados['din_instante'].dt.year < 2024]
+# dados_24e25 = dados[dados['din_instante'].dt.year >= 2024]     # Filtra os dados para o ano de 2024
 
 n = 10000000    # Número de pontos a serem plotados
 # plotar_geracao_limitada(dados, n)
