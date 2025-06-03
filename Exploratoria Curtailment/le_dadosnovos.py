@@ -17,5 +17,11 @@ def le_dados_novos():
     cmo_25 = pd.read_parquet("CMO_SEMIHORARIO_2025.parquet")
     cmo = pd.concat([cmo_22, cmo_23, cmo_24, cmo_25], ignore_index=True)
     dados = cmo
-    
+    return dados
+
+def le_parquet():
+    # Lê todos os arquivos parquet na pasta atual
+    arquivos_parquet = [f for f in os.listdir() if f.endswith('.parquet')]
+    lista_dfs = [pd.read_parquet(f) for f in arquivos_parquet]
+    dados = pd.concat(lista_dfs, ignore_index=True)
     return dados
