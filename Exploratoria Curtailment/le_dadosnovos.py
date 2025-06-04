@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import matplotlib.pyplot as plt
 
 def le_parquet():
     # Lê todos os arquivos parquet na pasta atual
@@ -11,4 +12,12 @@ def le_parquet():
     dados = pd.concat(lista_dfs, ignore_index=True)
     return dados
 
-# dados = le_parquet()
+def compara_demanda(dados, dados_coff):
+    '''Compara a demanda de energia entre dois períodos diferentes.'''
+    carga = dados[dados['val_cargaenergiahomwmed']>=0]
+    carga_ne = carga[carga['id_subsistema']=='NE']
+    coff_ne = dados_coff[dados_coff['id_subsistema']=="NE"]
+    coff_ne_ene = coff_ne[coff_ne['cod_razaorestricao']=="ENE"]
+    coff_tot = coff_ne_ene.groupby(['din_instante'])['val_geracaolimitada'].sum()
+    plt.plot(coff_ne_ene['din_instante'], coff_ne_ene['val_geracaolimitada'])
+    plt.plot(coff_tot)
