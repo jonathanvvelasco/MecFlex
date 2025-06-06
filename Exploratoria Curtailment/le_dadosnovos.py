@@ -19,5 +19,5 @@ def compara_demanda(dados, dados_coff):
     coff_ne = dados_coff[dados_coff['id_subsistema']=="NE"]
     coff_ne_ene = coff_ne[coff_ne['cod_razaorestricao']=="ENE"]
     coff_tot = coff_ne_ene.groupby(['din_instante'])['val_geracaolimitada'].sum()
-    plt.plot(coff_ne_ene['din_instante'], coff_ne_ene['val_geracaolimitada'])
-    plt.plot(coff_tot)
+    plt.plot(carga_ne['din_instante'], carga_ne['val_cargaenergiahomwmed'], label='Demanda NE')
+    plt.plot(coff_tot, label='Geração Limitada NE')
