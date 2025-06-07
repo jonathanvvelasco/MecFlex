@@ -48,4 +48,6 @@ def modulacao(dados):
     subsistema = 'NE'
     dados_subsistema = dados[dados['id_subsistema'] == subsistema]
     carga_subsistema = dados_subsistema[dados_subsistema['val_cargaenergiahomwmed']>=0]
+    carga_media = carga_subsistema['val_cargaenergiahomwmed'].mean()
+    carga_modulada = carga_subsistema['val_cargaenergiahomwmed'] / carga_media
     return carga_subsistema

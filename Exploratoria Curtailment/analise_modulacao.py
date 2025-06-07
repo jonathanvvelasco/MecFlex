@@ -29,6 +29,8 @@ n = 10000000    # Número de pontos a serem plotados
 
 # compara_demanda(dados, dados_coff)
 
+modulacao(dados)
+
 plt.show()
 
 a=1
