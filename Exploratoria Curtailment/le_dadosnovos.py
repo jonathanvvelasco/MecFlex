@@ -21,3 +21,13 @@ def compara_demanda(dados, dados_coff):
     coff_tot = coff_ne_ene.groupby(['din_instante'])['val_geracaolimitada'].sum()
     plt.plot(carga_ne['din_instante'], carga_ne['val_cargaenergiahomwmed'], label='Demanda NE')
     plt.plot(coff_tot, label='Geração Limitada NE')
+
+def trata_dados(dados,dados_coff):
+    '''Trata os dados para análise.'''
+    carga = dados[dados['val_cargaenergiahomwmed']>=0]
+    carga_ne = carga[carga['id_subsistema']=='NE']
+    coff_ne = dados_coff[dados_coff['id_subsistema']=="NE"]
+    coff_ne_ene = coff_ne[coff_ne['cod_razaorestricao']=="ENE"]
+    dados2 = pd.merge(carga_ne, coff_ne_ene, on='din_instante', how='left')
+    dados['val_geracaolimitada'] = dados['val_geracaolimitada'].fillna(0)
+    return dados
