@@ -1,4 +1,4 @@
-import os
+
 from le_curtailment import *
 from le_dadosnovos import *
 
@@ -29,7 +29,21 @@ n = 10000000    # Número de pontos a serem plotados
 
 # compara_demanda(dados, dados_coff)
 
-modulacao(dados)
+def modulacao2(dados):
+    '''Modula a geração de energia no subsistema Nordeste.'''
+    subsistema = 'NE'
+    dados_subsistema = dados[dados['id_subsistema'] == subsistema]
+    carga_subsistema = dados_subsistema[dados_subsistema['val_cargaenergiahomwmed']>=0]
+    carga_media = carga_subsistema['val_cargaenergiahomwmed'].mean()
+    carga_modulada = carga_subsistema['val_cargaenergiahomwmed'] / carga_media
+    tipos_usina = dados_subsistema['nom_tipousina'].unique()
+    for tipo in [t for t in tipos_usina if pd.notna(t)]:
+        dados_tipo = dados_subsistema[dados_subsistema['nom_tipousina'] == tipo]
+        geracao_media = dados_tipo['val_geracao'].mean()
+        a=1
+    return carga_subsistema
+
+modulacao2(dados)
 
 plt.show()
 

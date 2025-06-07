@@ -50,4 +50,10 @@ def modulacao(dados):
     carga_subsistema = dados_subsistema[dados_subsistema['val_cargaenergiahomwmed']>=0]
     carga_media = carga_subsistema['val_cargaenergiahomwmed'].mean()
     carga_modulada = carga_subsistema['val_cargaenergiahomwmed'] / carga_media
+    tipos_usina = dados_subsistema['nom_tipousina'].unique()
+    for tipo in [t for t in tipos_usina if pd.notna(t)]:
+        dados_tipo = dados_subsistema[dados_subsistema['nom_tipousina'] == tipo]
+        geracao_media = dados_tipo['val_geracao'].mean()
+        a=1
     return carga_subsistema
+
