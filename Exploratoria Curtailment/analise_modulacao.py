@@ -22,56 +22,65 @@ n = 10000000    # Número de pontos a serem plotados
 # compara_demanda(dados, dados_coff)
 
 def modulacao2(dados):
-    '''Modula a geração de energia no subsistema SIN.'''
+    '''calcula participacao da geração para modulacao da carga no SIN.'''
     # Calcula a demanda de energia eletrica do sistema
-    subsistema = 'SIN'
-    dados_subsistema = dados # dados[dados['id_subsistema'] == subsistema]
-    carga_subsistema = dados_subsistema[dados_subsistema['val_cargaenergiahomwmed']>=0]
-    carga_subsistema = carga_subsistema[carga_subsistema['din_instante']<'2025-05-30']
-    carga_total = carga_subsistema.groupby(['din_instante'])['val_cargaenergiahomwmed'].sum()
+    carga = dados[dados['val_cargaenergiahomwmed']>=0]
+    carga = carga[carga['din_instante']<'2025-05-30']
+    carga_total = carga.groupby(['din_instante'])['val_cargaenergiahomwmed'].sum()
+    carga_se = carga[carga['id_subsistema']=='SE']  # Seleciona um subsistema
+    carga = carga_se.copy()
+    carga.loc[carga['id_subsistema']=='SE','val_cargaenergiahomwmed'] = carga_total.values
     carga_media = carga_total.mean()
-    tipos_usina = dados_subsistema['nom_tipousina'].unique()
+    tipos_usina = dados['nom_tipousina'].unique()
     plt.figure(figsize=(10, 6))
     plt.plot(carga_total/1e3)
     plt.title("Demanda do SIN")
     plt.xlabel('Hora')
     plt.ylabel('Demanda de Energia Elétrica (GWm)')
-    print("subsistema " + subsistema)   
+    print("Sistema Interligado Nacional")   
     print("carga media " + str(carga_media))
     
-    # Calcula contribuicao de cada fonte para a carga do sistema
-    resultado = carga_subsistema.copy()
+    resultado = carga.copy()
     for tipo in [t for t in tipos_usina if pd.notna(t)]:
-        dados_tipo = dados_subsistema[dados_subsistema['nom_tipousina'] == tipo]
+        
+        # Calcula contribuicao de cada fonte para a carga do sistema
+        dados_tipo = dados[dados['nom_tipousina'] == tipo]
         dados_tipo = dados_tipo.copy()
         dados_tipo.loc[dados_tipo['val_geracao'] == "", 'val_geracao'] = 0
         dados_tipo['val_geracao'] = dados_tipo['val_geracao'].astype(float)
-        geracao_subsistema = dados_tipo.groupby(['din_instante','id_subsistema'])['val_geracao'].sum()
-        geracao_total = dados_tipo.groupby(['din_instante'])['val_geracao'].sum()
-        geracao_media = geracao_total.mean()
+        geracao_real = dados_tipo.groupby(['din_instante'])['val_geracao'].sum()
+        
+        # Modula geracao pelo fator de participacao
+        geracao_media = geracao_real.mean()
         fator_modulacao = geracao_media/carga_media
-        geracao_modulada = carga_subsistema
-        geracao_modulada['val_geracao'] = carga_subsistema['val_cargaenergiahomwmed']*fator_modulacao
-        ger_mod_total = carga_total*fator_modulacao
         carga_media_t = pd.Series(carga_media*fator_modulacao, index=carga_total.index)
-        try:
-            resultado[tipo] = geracao_subsistema.values
-        except ValueError:
-            resultado[tipo] = 0.0
-            resultado = resultado.copy()
-            resultado.loc[resultado['id_subsistema']=="SE",tipo] = geracao_subsistema.values
+        geracao_modulada = carga
+        geracao_modulada['val_geracao'] = carga['val_cargaenergiahomwmed']*fator_modulacao
+        ger_mod_total = carga_total*fator_modulacao
+        
+        # Salva resultados
+        resultado[tipo] = geracao_real.values
         resultado[tipo+"_modulada"] = geracao_modulada['val_geracao']
+        
+        # Calcula diferencas entre geracao real e geracao modulada
+        resultado[tipo+"_diferenca"] = resultado[tipo] - resultado[tipo+"_modulada"]
+        diferenca = geracao_real-ger_mod_total
+        
+        # Imprime graficos
         print(tipo, geracao_media)
         plt.figure(figsize=(10, 6))
         plt.plot(ger_mod_total/1e3, alpha=0.4, label='Geração Modulada')
-        plt.plot(geracao_total/1e3, alpha=0.4, label='Geração Real')
-        plt.plot(carga_media_t/1e3, alpha=0.4, label='Carga Média', color='red')
+        plt.plot(geracao_real/1e3, alpha=0.4, label='Geração Real')
+        # plt.plot(carga_media_t/1e3, alpha=0.4, label='Carga Média', color='red')
+        # plt.plot(diferenca/1e3, alpha=0.4, label='Diferença') # Fica feio tudo junto
         plt.title("Geração Modulada "+tipo)
         plt.xlabel('Hora')
         plt.ylabel('Geração Limitada (GWm)')
-        plt.legend()
+        plt.legend()    
     return resultado
 
 resultado = modulacao2(dados)
+
+
 
 plt.show()
