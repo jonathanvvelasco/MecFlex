@@ -54,6 +54,4 @@ def modulacao(dados):
     for tipo in [t for t in tipos_usina if pd.notna(t)]:
         dados_tipo = dados_subsistema[dados_subsistema['nom_tipousina'] == tipo]
         geracao_media = dados_tipo['val_geracao'].mean()
-        a=1
     return carga_subsistema
-
