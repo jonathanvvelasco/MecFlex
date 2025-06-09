@@ -21,6 +21,8 @@ def le_dados():
         arquivos_parquet = [f for f in os.listdir() if f.endswith('.parquet')]
         lista_dfs = [pd.read_parquet(f) for f in arquivos_parquet]
         dados = pd.concat(lista_dfs, ignore_index=True)
+        dados['din_instante'] = pd.to_datetime(dados['din_instante'])
+        # dados.to_parquet("dados.parquet", index=False)
     return dados, dados_coff
 
 def compara_demanda(dados, dados_coff):
