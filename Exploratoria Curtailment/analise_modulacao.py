@@ -186,4 +186,10 @@ resultado = modulacao2(dados)
 valores = valora_modulacao(resultado)
 mensal = modulacao_mensal(valores)
 
+
+dados.loc[dados['val_geracao'] == "", 'val_geracao'] = 0
+dados['val_geracao'] = dados['val_geracao'].astype(float)
+
+
+
 plt.show()
