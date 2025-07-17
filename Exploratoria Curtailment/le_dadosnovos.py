@@ -22,7 +22,9 @@ def le_dados():
         lista_dfs = [pd.read_parquet(f) for f in arquivos_parquet]
         dados = pd.concat(lista_dfs, ignore_index=True)
         dados['din_instante'] = pd.to_datetime(dados['din_instante'])
-        # dados.to_parquet("dados.parquet", index=False)
+        pasta_atual = os.path.dirname(os.path.abspath(__file__))
+        os.chdir(pasta_atual)
+        dados.to_parquet("dados.parquet", index=False)
     return dados, dados_coff
 
 def compara_demanda(dados, dados_coff):
