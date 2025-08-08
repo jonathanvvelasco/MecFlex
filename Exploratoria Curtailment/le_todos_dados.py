@@ -29,7 +29,7 @@ colunas_ordenadas = ['Data', 'Subsistema', 'Nome Usina']
 dados2 = dados_concat[colunas_ordenadas]
 dados2.loc[dados_concat['val_cmo'] >= 0, 'Variavel'] = 'CMO'                        # Adiciona uma nova coluna chamada 'Variavel' com valores de CMO
 dados2.loc[dados_concat['val_cargaenergiahomwmed'] >= 0, 'Variavel'] = 'Carga'      # Adiciona 'Carga' na coluna chamada 'Variavel'
-dados2.loc[dados_concat['val_geracao'] >= 0, 'Variavel'] = 'Geracao'                # Adiciona 'Geracao' na coluna chamada 'Variavel'
+dados2.loc[dados_concat['val_geracao'] >= 0, 'Variavel'] = "Geracao " + dados_concat['nom_tipocombustivel']                # Adiciona 'Geracao' na coluna chamada 'Variavel'
 dados2.loc[dados_concat['val_geracaolimitada'] >= 0, 'Variavel'] = 'Curtailment'    # Adiciona 'Curtailment' na coluna chamada 'Variavel'
 
 # Identifica discretizacao de tempo
