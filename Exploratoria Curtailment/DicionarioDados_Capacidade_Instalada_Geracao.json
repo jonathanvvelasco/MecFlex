@@ -1,0 +1,77 @@
+{
+    "titulo": "DicionarioDados_Capacidade_Instalada_Geracao",
+    "dicionario_simplificado": [
+        {
+            "descricao": "Código do Subsistema da Usina",
+            "codigo": "id_subsistema"
+        },
+        {
+            "descricao": "Nome do Subsistema",
+            "codigo": "nom_subsistema"
+        },
+        {
+            "descricao": "Sigla do Estado Onde Está Localizada a Usina",
+            "codigo": "id_estado"
+        },
+        {
+            "descricao": "Nome do Estado",
+            "codigo": "nom_estado"
+        },
+        {
+            "descricao": "Modalidade de Operação da Usina",
+            "codigo": "nom_modalidadeoperacao"
+        },
+        {
+            "descricao": "Agente Proprietário da Usina",
+            "codigo": "nom_agenteproprietario"
+        },
+        {
+            "descricao": "Agente Operador da Usina",
+            "codigo": "nom_agenteoperador"
+        },
+        {
+            "descricao": "Tipo da Usina. Temos os tipos de Usinas:EOLIELÉTRICA, FOTOVOLTAICA, HIDROELÉTRICA, NUCLEAR, TÉRMICA",
+            "codigo": "nom_tipousina"
+        },
+        {
+            "descricao": "Nome da Usina",
+            "codigo": "nom_usina"
+        },
+        {
+            "descricao": "Código Único do Empreendimento de Geração (CEG), estabelecido pela ANEEL",
+            "codigo": "ceg"
+        },
+        {
+            "descricao": "Nome da Unidade Geradora",
+            "codigo": "nom_unidadegeradora"
+        },
+        {
+            "descricao": "Código do Equipamento – Unidade Geradora",
+            "codigo": "cod_equipamento"
+        },
+        {
+            "descricao": "Código Operacional da Unidade Geradora",
+            "codigo": "num_unidadegeradora"
+        },
+        {
+            "descricao": "Combustível da Unidade Geradora",
+            "codigo": "nom_combustivel"
+        },
+        {
+            "descricao": "Data da Liberação para Entrada em Comissionamento",
+            "codigo": "dat_entradateste"
+        },
+        {
+            "descricao": "Data da Liberação para Entrada em Operação Comercial",
+            "codigo": "dat_entradaoperacao"
+        },
+        {
+            "descricao": "Data de Desativação da Unidade GeradoraO conteúdo NULL (ou vazio) representa que a unidade geradora está ativa.",
+            "codigo": "dat_desativacao"
+        },
+        {
+            "descricao": "Potência Nominal da Unidade Geradora, Conforme Documento Normativo da ANEEL, em MW",
+            "codigo": "val_potenciaefetiva"
+        }
+    ]
+}
